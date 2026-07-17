@@ -1,6 +1,9 @@
-const { sql } = require('@vercel/postgres');
+const { neon } = require('@neondatabase/serverless');
 const fs = require('fs');
 const path = require('path');
+
+const connectionString = process.env.DATABASE_URL || process.env.DATABASE_URL_UNPOOLED || process.env.POSTGRES_URL;
+const sql = neon(connectionString);
 
 async function ensureTable() {
   await sql`CREATE TABLE IF NOT EXISTS panel_data (key TEXT PRIMARY KEY, value JSONB NOT NULL)`;
@@ -13,18 +16,19 @@ function seedData() {
 }
 
 module.exports = async function handler(req, res) {
+  if (!connectionString) return res.status(500).json({ error: 'missing DATABASE_URL' });
   await ensureTable();
 
   if (req.method === 'GET') {
-    const flRow = await sql`SELECT value FROM panel_data WHERE key = 'fl'`;
-    const svRow = await sql`SELECT value FROM panel_data WHERE key = 'sv'`;
-    if (flRow.rows.length === 0 || svRow.rows.length === 0) {
+    const flRows = await sql`SELECT value FROM panel_data WHERE key = 'fl'`;
+    const svRows = await sql`SELECT value FROM panel_data WHERE key = 'sv'`;
+    if (flRows.length === 0 || svRows.length === 0) {
       const seed = seedData();
       await sql`INSERT INTO panel_data (key, value) VALUES ('fl', ${JSON.stringify(seed.fl)}::jsonb) ON CONFLICT (key) DO NOTHING`;
       await sql`INSERT INTO panel_data (key, value) VALUES ('sv', ${JSON.stringify(seed.sv)}::jsonb) ON CONFLICT (key) DO NOTHING`;
       return res.status(200).json(seed);
     }
-    return res.status(200).json({ fl: flRow.rows[0].value, sv: svRow.rows[0].value });
+    return res.status(200).json({ fl: flRows[0].value, sv: svRows[0].value });
   }
 
   if (req.method === 'POST') {
