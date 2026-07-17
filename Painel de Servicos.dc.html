@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/tokens/effects.css">
+  <link rel="stylesheet" href="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/styles.css">
+  <script src="_ds/foto-clube-design-system-7803bcdb-2e1f-427a-86eb-3726519a1ec1/_ds_bundle.js"></script>
+  <script src="dados-servicos.js"></script>
+  <style>
+    body{margin:0;background:var(--surface-sunken);}
+    a{color:var(--brand-primary);text-decoration:none}
+    a:hover{color:var(--brand-primary-hover);text-decoration:underline}
+    *{box-sizing:border-box}
+    :root{
+      --blue-900:#5c0029;--blue-800:#8a003d;--blue-700:#b30050;--blue-600:#e6006e;--blue-500:#f0247f;--blue-400:#f562a1;--blue-300:#f89dc4;--blue-200:#fccde0;--blue-100:#fdeaf2;
+      --brand-primary:#e6006e;--brand-primary-hover:#b30050;--brand-primary-active:#8a003d;--brand-primary-tint:#fdeaf2;
+      --text-brand:#e6006e;--focus-ring:#e6006e;--border-brand:#e6006e;
+      --state-success:#5aa832;
+    }
+  </style>
+</helmet>
+<div style="min-height:100vh;font-family:var(--font-body);color:var(--text-primary)">
+  <div style="background:var(--brand-primary)">
+    
+  <div style="max-width: 1280px; margin: 0 auto; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background-color: #FFFEFE; position: relative">
+      <div onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 16px; cursor: pointer; width: 206px; height: 112px">
+        <img src="assets/logo-foto-clube.jpeg" alt="Foto Clube" style="height: 118px; width: 225px; display: block; background: #fff; padding: 6px 10px">
+        
+      </div>
+      <div style="font-family: var(--font-body); font-size: 14px; font-weight: 600; letter-spacing: 0.2em; color: var(--border-strong); width: 467px; height: 60px; line-height: 1.25; text-align: center">Controle de serviços · Tiradentes &amp; Amazonas</div><div>
+        <sc-if value="{{ hasOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; align-items: center; gap: 10px; color: var(--black); padding: 10px 16px; font-weight: 700; font-size: 14px; background-color: #FF004B; width: 419px; height: 99px">
+            <span style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; color: var(--border-strong); font-family: var(--font-display); background-color: var(--state-warning)">!</span>
+            <span style="color: var(--surface-sunken); line-height: 3.4; font-size: 14px">{{ openLabel }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ allClear }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;background:var(--blue-800);color:#fff;padding:10px 16px;font-weight:600;font-size:14px">
+            <span style="font-size:16px">✓</span><span>Tudo entregue — nada em aberto</span>
+          </div>
+        </sc-if>
+      </div>
+    </div></div>
+
+  <sc-if value="{{ showPopup }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px;overflow:auto">
+      <div style="background:var(--surface-card);max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="background:var(--yellow-600);padding:18px 22px;display:flex;align-items:center;gap:12px">
+          <span style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;flex:none;background:var(--black);color:var(--yellow-600);font-family:var(--font-display);font-size:18px">!</span>
+          <div>
+            <div style="font-family:var(--font-heading);font-size:17px;font-weight:700;color:var(--black)">Atenção — {{ popupTitle }}</div>
+            <div style="font-size:12px;color:var(--black);opacity:.75">Sem atualização de status há {{ stalledThresh }} dias úteis ou mais</div>
+          </div>
+        </div>
+        <div style="max-height:46vh;overflow:auto">
+          <sc-for list="{{ stalledList }}" as="s" hint-placeholder-count="4">
+            <div onClick="{{ s.onOpen }}" style="cursor:pointer;display:grid;grid-template-columns:96px 1.4fr 0.9fr 0.8fr 118px;gap:10px;align-items:center;padding:11px 22px;border-bottom:1px solid var(--neutral-100)">
+              <div style="font-size:12px;font-weight:600;color:var(--text-secondary)">{{ s.tipo }}</div>
+              <div style="font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.cliente }}</div>
+              <div style="font-size:12px;color:var(--text-muted)">OS {{ s.os }}</div>
+              <div style="font-size:12px;color:var(--text-muted)">{{ s.loja }}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--brand-primary);text-align:right">{{ s.diasLabel }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="padding:16px 22px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border-default)">
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ closePopup }}" hint-size="auto,44px">Entendi</x-import>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ editRow }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px;overflow:auto">
+      <div style="background:var(--surface-card);max-width:760px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <div style="padding:18px 22px;border-bottom:1px solid var(--border-default)">
+          <div style="font-family:var(--font-heading);font-size:17px;font-weight:700;color:var(--text-primary)">Editar pedido</div>
+        </div>
+        <div style="padding:18px 22px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Unidade" options="{{ lojasAdd }}" value="{{ editRow.loja }}" on-change="{{ onE_loja }}" hint-size="160px,66px"></x-import>
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="OS" placeholder="Nº" value="{{ editRow.os }}" on-change="{{ onE_os }}" hint-size="120px,66px"></x-import>
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Cliente" value="{{ editRow.cliente }}" on-change="{{ onE_cliente }}" hint-size="200px,66px"></x-import>
+
+          <sc-if value="{{ editIsFL }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Modelo" options="{{ modeloOpts }}" value="{{ editRow.modelo }}" on-change="{{ onE_modelo }}" hint-size="200px,66px"></x-import>
+            <sc-if value="{{ editOutrosFL }}" hint-placeholder-val="{{ false }}">
+              <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Qual modelo?" value="{{ editRow.modeloOutros }}" on-change="{{ onE_modeloOutros }}" hint-size="200px,66px"></x-import>
+            </sc-if>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Vendedor(a)" value="{{ editRow.vendedor }}" on-change="{{ onE_vendedor }}" hint-size="150px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ editRow.dataEntrega }}" on-change="{{ onE_entrega }}" hint-size="110px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ flBaseOpts }}" value="{{ editRow.status }}" on-change="{{ onE_statusFL }}" hint-size="180px,66px"></x-import>
+          </sc-if>
+
+          <sc-if value="{{ editIsSV }}" hint-placeholder-val="{{ false }}">
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Serviço" options="{{ servicoOpts }}" value="{{ editRow.descricao }}" on-change="{{ onE_descricao }}" hint-size="220px,66px"></x-import>
+            <sc-if value="{{ editOutrosSV }}" hint-placeholder-val="{{ false }}">
+              <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Qual serviço?" value="{{ editRow.descricaoOutros }}" on-change="{{ onE_descOutros }}" hint-size="220px,66px"></x-import>
+            </sc-if>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Laboratorista" value="{{ editRow.laboratorista }}" on-change="{{ onE_lab }}" hint-size="150px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ editRow.dataEntrega }}" on-change="{{ onE_entrega }}" hint-size="110px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ svBaseOpts }}" value="{{ editRow.status }}" on-change="{{ onE_statusSV }}" hint-size="180px,66px"></x-import>
+          </sc-if>
+
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Observação" placeholder="Opcional" value="{{ editRow.obs }}" on-change="{{ onE_obs }}" hint-size="240px,66px"></x-import>
+        </div>
+        <div style="padding:16px 22px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border-default)">
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="ghost" on-click="{{ closeEdit }}" hint-size="auto,44px">Cancelar</x-import>
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ saveEdit }}" hint-size="auto,44px">Salvar alterações</x-import>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;flex-direction:column;gap:18px;padding:22px 0 48px">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:22px;padding:6px 0 48px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+              <div style="font-family:var(--font-heading);font-size:22px;font-weight:600;color:var(--text-primary)">Resumo geral</div>
+              <div style="font-size:13px;color:var(--text-muted)">Visão das duas unidades — clique num módulo para gerenciar</div>
+            </div>
+            <sc-if value="{{ hasStalled }}" hint-placeholder-val="{{ false }}">
+              <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="secondary" size="sm" on-click="{{ openPopup }}" hint-size="auto,38px">⚠ Ver pedidos parados ({{ stalledCount }})</x-import>
+            </sc-if>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:20px">
+            <div style="padding: 26px 28px; display: flex; flex-direction: column; justify-content: center; gap: 4px; background-color: #FF004B">
+              <div style="font-family: var(--font-display); font-size: 64px; font-weight: 600; line-height: 1; color: var(--brand-secondary-tint)">{{ totalOpen }}</div>
+              <div style="font-family: var(--font-heading); font-size: 16px; font-weight: 600; color: var(--surface-sunken)">pedidos atrasados no total</div>
+              <div style="font-size:13px;color:var(--black);opacity:.7">{{ openFL }} foto livros · {{ openSV }} serviços aguardando</div>
+            </div>
+            <div style="padding: 26px 28px; display: flex; flex-direction: column; justify-content: center; gap: 8px; color: #fff; background-color: #A5CD72">
+              <div style="font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #FFC500">Entregues</div>
+              <div style="font-family:var(--font-display);font-size:44px;font-weight:600;line-height:1">{{ doneTotal }}</div>
+              <div style="font-size:13px;opacity:.85">de {{ grandTotal }} registros no total</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div onClick="{{ openFLview }}" style="cursor:pointer;background:var(--surface-card);border:1px solid var(--border-default);padding:22px" style-hover="border-color:var(--brand-primary)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+                <div style="font-family:var(--font-heading);font-size:20px;font-weight:600">Foto Livros</div>
+                <div style="font-size:13px;font-weight:600;color:var(--brand-primary)">Abrir →</div>
+              </div>
+              <div style="display:flex;gap:28px;margin-bottom:14px">
+                <div><div style="font-family: var(--font-display); font-size: 30px; font-weight: 600; color: #FF004B">{{ homeFL.total }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Total</div></div>
+                <div><div style="font-family: var(--font-display); font-size: 30px; font-weight: 600; color: #A5CD72">{{ homeFL.done }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Expedidos</div></div>
+                <div><div style="font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--yellow-800)">{{ homeFL.open }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Atrasados</div></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);border-top:1px solid var(--neutral-100);padding-top:12px">Tiradentes {{ homeFL.t }} · Amazonas {{ homeFL.a }}</div>
+            </div>
+            <div onClick="{{ openSVview }}" style="cursor:pointer;background:var(--surface-card);border:1px solid var(--border-default);padding:22px" style-hover="border-color:var(--brand-primary)">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+                <div style="font-family:var(--font-heading);font-size:20px;font-weight:600">Serviços</div>
+                <div style="font-size:13px;font-weight:600;color:var(--brand-primary)">Abrir →</div>
+              </div>
+              <div style="display:flex;gap:28px;margin-bottom:14px">
+                <div><div style="font-family: var(--font-display); font-size: 30px; font-weight: 600; color: #FF004B">{{ homeSV.total }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Total</div></div>
+                <div><div style="font-family: var(--font-display); font-size: 30px; font-weight: 600; color: #A5CD72">{{ homeSV.done }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Finalizados</div></div>
+                <div><div style="font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--yellow-800)">{{ homeSV.open }}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600">Atrasados</div></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);border-top:1px solid var(--neutral-100);padding-top:12px">Tiradentes {{ homeSV.t }} · Amazonas {{ homeSV.a }}</div>
+            </div>
+          </div>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default)">
+            <div style="padding:14px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken);font-family:var(--font-heading);font-size:15px;font-weight:600">Precisam de atenção</div>
+            <sc-for list="{{ attention }}" as="a" hint-placeholder-count="6">
+              <div onClick="{{ a.onOpen }}" style="cursor:pointer;display:grid;grid-template-columns:12px 104px 1.4fr 1fr 0.9fr 130px;gap:12px;align-items:center;padding:11px 18px;border-bottom:1px solid var(--neutral-100)">
+                <span style="width:10px;height:10px;flex:none;background:{{ a.dotColor }}"></span>
+                <div style="font-size:12px;font-weight:600;color:var(--text-secondary)">{{ a.tipo }}</div>
+                <div style="font-size:14px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ a.cliente }}</div>
+                <div style="font-size:12px;color:var(--text-muted)">OS {{ a.os }}</div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ a.loja }}</div>
+                <div style="font-size:12px;color:var(--yellow-800);font-weight:600;text-align:right">{{ a.status }}</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ attentionEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:34px;text-align:center;color:var(--text-muted);font-size:14px">Nada atrasado — tudo entregue.</div></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+      <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Tabs" tabs="{{ tabs }}" value="{{ tab }}" on-change="{{ setTab }}" hint-size="100%,44px"></x-import>
+
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+        <sc-for list="{{ statsList }}" as="st" hint-placeholder-count="5">
+          <div style="background:var(--surface-card);border:1px solid var(--border-default);border-top:3px solid {{ st.color }};padding:15px 18px;display:flex;flex-direction:column;gap:7px">
+            <div style="font-family:var(--font-display);font-size:32px;font-weight:600;line-height:1;color:{{ st.color }}">{{ st.value }}</div>
+            <div style="font-family:var(--font-body);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">{{ st.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between">
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Unidade" options="{{ lojaOpts }}" value="{{ loja }}" on-change="{{ onLoja }}" hint-size="180px,66px"></x-import>
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Situação" options="{{ situacaoOpts }}" value="{{ situacao }}" on-change="{{ onSituacao }}" hint-size="170px,66px"></x-import>
+          <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Buscar" placeholder="OS ou cliente" value="{{ busca }}" on-change="{{ onBusca }}" hint-size="240px,66px"></x-import>
+        </div>
+        <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="{{ addBtnVariant }}" on-click="{{ toggleAdd }}" hint-size="auto,44px">{{ addBtnLabel }}</x-import>
+      </div>
+
+      <sc-if value="{{ isFL }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-if value="{{ showAdd }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);padding:18px">
+              <div style="font-family:var(--font-heading);font-size:15px;font-weight:600;margin-bottom:14px">Novo pedido de foto livro</div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Unidade" options="{{ lojasAdd }}" value="{{ formFL.loja }}" on-change="{{ fFL_loja }}" hint-size="160px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="OS" placeholder="Nº" value="{{ formFL.os }}" on-change="{{ fFL_os }}" hint-size="120px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Cliente" value="{{ formFL.cliente }}" on-change="{{ fFL_cliente }}" hint-size="200px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Modelo" options="{{ modeloOpts }}" value="{{ formFL.modelo }}" on-change="{{ fFL_modelo }}" hint-size="200px,66px"></x-import>
+                <sc-if value="{{ flOutros }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Qual modelo?" placeholder="Descreva o modelo" value="{{ formFL.modeloOutros }}" on-change="{{ fFL_modeloOutros }}" hint-size="200px,66px"></x-import>
+                </sc-if>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Vendedor(a)" value="{{ formFL.vendedor }}" on-change="{{ fFL_vendedor }}" hint-size="150px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ formFL.dataEntrega }}" on-change="{{ fFL_entrega }}" hint-size="110px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ flBaseOpts }}" value="{{ formFL.status }}" on-change="{{ fFL_status }}" hint-size="180px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Observação" placeholder="Opcional" value="{{ formFL.obs }}" on-change="{{ fFL_obs }}" hint-size="240px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ addFL }}" hint-size="auto,44px">Adicionar</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default)">
+            <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 46px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">OS</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Cliente</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Modelo</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Vendedor(a)</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Unidade</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Entrega</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Status</div>
+              <div></div>
+            </div>
+            <sc-for list="{{ flRows }}" as="r" hint-placeholder-count="10">
+              <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
+                <div style="font-family:var(--font-body);font-size:13px;color:var(--text-secondary);font-weight:600">{{ r.os }}</div>
+                <div style="min-width:0">
+                  <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
+                  <sc-if value="{{ r.hasObs }}" hint-placeholder-val="{{ false }}"><div onClick="{{ r.onEditObs }}" title="{{ r.obs }}" style="cursor:pointer;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">obs: {{ r.obs }}</div></sc-if>
+                  <sc-if value="{{ r.noObs }}" hint-placeholder-val="{{ true }}"><div onClick="{{ r.onEditObs }}" style="cursor:pointer;font-size:11px;color:var(--brand-primary);font-weight:600">+ observação</div></sc-if>
+                </div>
+                <div style="font-size:13px;color:var(--text-secondary)">{{ r.modelo }}</div>
+                <div style="font-size:13px;color:var(--text-muted)">{{ r.vendedor }}</div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ r.loja }}</div>
+                <div style="font-size:13px;color:var(--text-secondary)">{{ r.entrega }}</div>
+                <div style="display:flex;align-items:center;gap:8px" title="{{ r.dotLabel }}">
+                  <span style="width:12px;height:12px;flex:none;background:{{ r.dotColor }}"></span>
+                  <div style="flex:1;min-width:0"><x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" options="{{ r.statusOptions }}" value="{{ r.statusValue }}" on-change="{{ r.onStatusChange }}" hint-size="100%,44px"></x-import></div>
+                </div>
+                <div style="display:flex;gap:4px">
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Editar" icon="{{ editIcon }}" on-click="{{ r.onEdit }}" hint-size="32px,32px"></x-import>
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Excluir" icon="{{ trashIcon }}" on-click="{{ r.onRemove }}" hint-size="32px,32px"></x-import>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ flEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px;text-align:center;color:var(--text-muted);font-size:14px">Nenhum pedido encontrado.</div></sc-if>
+            <sc-if value="{{ flCapped }}" hint-placeholder-val="{{ false }}"><div style="padding:14px 18px;font-size:12px;color:var(--text-muted);background:var(--surface-sunken)">{{ flCapLabel }}</div></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSV }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-if value="{{ showAdd }}" hint-placeholder-val="{{ false }}">
+            <div style="background:var(--surface-card);border:1px solid var(--border-default);padding:18px">
+              <div style="font-family:var(--font-heading);font-size:15px;font-weight:600;margin-bottom:14px">Novo serviço</div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Unidade" options="{{ lojasAdd }}" value="{{ formSV.loja }}" on-change="{{ fSV_loja }}" hint-size="160px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="OS" placeholder="Nº" value="{{ formSV.os }}" on-change="{{ fSV_os }}" hint-size="120px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Cliente" value="{{ formSV.cliente }}" on-change="{{ fSV_cliente }}" hint-size="180px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Serviço" options="{{ servicoOpts }}" value="{{ formSV.descricao }}" on-change="{{ fSV_descricao }}" hint-size="220px,66px"></x-import>
+                <sc-if value="{{ svOutros }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Qual serviço?" placeholder="Descreva o serviço" value="{{ formSV.descricaoOutros }}" on-change="{{ fSV_descOutros }}" hint-size="220px,66px"></x-import>
+                </sc-if>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Laboratorista" value="{{ formSV.laboratorista }}" on-change="{{ fSV_lab }}" hint-size="150px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ formSV.dataEntrega }}" on-change="{{ fSV_entrega }}" hint-size="110px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ svBaseOpts }}" value="{{ formSV.status }}" on-change="{{ fSV_status }}" hint-size="180px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Observação" placeholder="Opcional" value="{{ formSV.obs }}" on-change="{{ fSV_obs }}" hint-size="240px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ addSV }}" hint-size="auto,44px">Adicionar</x-import>
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="background:var(--surface-card);border:1px solid var(--border-default)">
+            <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 172px 46px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">OS</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Cliente</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Serviço</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Vendedor(a)</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Laboratorista</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Unidade</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Status</div>
+              <div></div>
+            </div>
+            <sc-for list="{{ svRows }}" as="r" hint-placeholder-count="10">
+              <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
+                <div style="font-family:var(--font-body);font-size:13px;color:var(--text-secondary);font-weight:600">{{ r.os }}</div>
+                <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
+                <div style="min-width:0">
+                  <div style="font-size:13px;color:var(--text-secondary)">{{ r.descricao }}</div>
+                  <sc-if value="{{ r.hasObs }}" hint-placeholder-val="{{ false }}"><div onClick="{{ r.onEditObs }}" title="{{ r.obs }}" style="cursor:pointer;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">obs: {{ r.obs }}</div></sc-if>
+                  <sc-if value="{{ r.noObs }}" hint-placeholder-val="{{ true }}"><div onClick="{{ r.onEditObs }}" style="cursor:pointer;font-size:11px;color:var(--brand-primary);font-weight:600">+ observação</div></sc-if>
+                </div>
+                <div style="font-size:13px;color:var(--text-muted)">{{ r.vendedor }}</div>
+                <div style="font-size:13px;color:var(--text-muted)">{{ r.laboratorista }}</div>
+                <div style="font-size:12px;color:var(--text-muted)">{{ r.loja }}</div>
+                <div style="display:flex;align-items:center;gap:8px" title="{{ r.dotLabel }}">
+                  <span style="width:12px;height:12px;flex:none;background:{{ r.dotColor }}"></span>
+                  <div style="flex:1;min-width:0"><x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" options="{{ r.statusOptions }}" value="{{ r.statusValue }}" on-change="{{ r.onStatusChange }}" hint-size="100%,44px"></x-import></div>
+                </div>
+                <div style="display:flex;gap:4px">
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Editar" icon="{{ editIcon }}" on-click="{{ r.onEdit }}" hint-size="32px,32px"></x-import>
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Excluir" icon="{{ trashIcon }}" on-click="{{ r.onRemove }}" hint-size="32px,32px"></x-import>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ svEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px;text-align:center;color:var(--text-muted);font-size:14px">Nenhum serviço encontrado.</div></sc-if>
+            <sc-if value="{{ svCapped }}" hint-placeholder-val="{{ false }}"><div style="padding:14px 18px;font-size:12px;color:var(--text-muted);background:var(--surface-sunken)">{{ svCapLabel }}</div></sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:4px">
+        <div style="font-size:12px;color:var(--text-muted)">Dados importados da sua planilha · alterações ficam salvas neste navegador.</div>
+        <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="ghost" size="sm" on-click="{{ reset }}" hint-size="auto,34px">Restaurar dados da planilha</x-import>
+      </div>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;confortavel&quot;,&quot;compacto&quot;],&quot;default&quot;:&quot;compacto&quot;,&quot;tsType&quot;:&quot;'confortavel'|'compacto'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fl&quot;,&quot;sv&quot;],&quot;default&quot;:&quot;fl&quot;,&quot;tsType&quot;:&quot;'fl'|'sv'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;diasParaAlerta&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:1,&quot;max&quot;:30,&quot;unit&quot;:&quot;dias úteis&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Automação&quot;}}">
+class Component extends DCLogic {
+  KEY = { fl: 'fc_fl_v2', sv: 'fc_sv_v2' };
+  FLBASE = ['Conferido', 'Impresso', 'Enviado para impressão', 'Encadernação', 'Correção de álbum', 'Expedido'];
+  SVBASE = ['Em produção', 'Enviado para Lab Amazonas', 'Enviado Lab Tiradentes', 'Recebido Lab Amazonas', 'Recebido Lab Tiradentes', 'ENVIADO / LAB PEDRO', 'Correção', 'Finalizado'];
+  CAP = 90;
+  SERVICOS = ['Revelação 30x40', 'Filme', 'Monóculo', 'Foto Tela 20x30', 'Foto Tela 40x40', 'Foto Tela 30x50', 'Foto Tela 40x60', 'Foto Tela 50x75', 'Foto Tela 60x90', 'Foto Tela 120x80', 'Papel Fotográfico Louvre (sob medida)', 'Quadro Slim PVC 40x60', 'Quadro Slim PVC 80x60', 'Quadro Slim PVC 120x80', 'Banner 40x60', 'Banner 90x60', 'Banner 120x80', 'Banner 150x100', 'Banner 150x200', 'Adesivo Vinil (sob medida)', 'Outros'];
+  MODELOS = ['Álbum MAX 15x20', 'Álbum MAX 20x30', 'Álbum MAX 30x30', 'Álbum Marshmallow 20x20', 'Álbum Premium 20x30', 'Álbum Premium 30x30', 'Álbum Dual Color 20x30', 'Álbum Dual Color 30x30', 'Álbum Madeira 20x30', 'Álbum Madeira 30x30', 'Caixa berço 20x30', 'Caixa berço 30x30', 'Caixa imã 20x30', 'Caixa imã 30x30', 'Luva 20x30', 'Luva 30x30', 'Maleta madeira 20x30', 'Maleta madeira 30x30', 'Outros'];
+
+  state = {
+    view: 'home',
+    tab: (this.props && this.props.defaultTab) || 'fl',
+    fl: [], sv: [], loaded: false,
+    loja: 'todas', situacao: 'aberto', busca: '',
+    showAdd: false, showPopup: false, popupSeen: false,
+    formFL: { loja: 'TIRADENTES', os: '', cliente: '', modelo: 'Álbum MAX 20x30', modeloOutros: '', vendedor: '', dataEntrega: '', status: 'Conferido', obs: '' },
+    formSV: { loja: 'TIRADENTES', os: '', cliente: '', descricao: 'Revelação 30x40', descricaoOutros: '', vendedor: '', laboratorista: '', dataEntrega: '', status: 'Em produção', obs: '' }
+  };
+
+  nid() { return 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  today2() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  pdate(s) { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  busDays(fromStr, to) { let d = this.pdate(fromStr); d = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()); let n = 0; while (d < end) { d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 0 && w !== 6) n++; } return n; }
+  stalled(fl, sv) {
+    const th = this.props.diasParaAlerta ?? 3; const now = new Date(); const out = [];
+    const push = (r, tipo, k) => { const dias = r.atualizadoEm ? this.busDays(r.atualizadoEm, now) : null; if (dias === null || dias >= th) out.push({ key: r.id, tipo, cliente: r.cliente, os: r.os, loja: r.loja, dias, diasLabel: dias === null ? 'sem registro' : dias + ' dias úteis', onOpen: () => this.setState({ view: 'app', tab: k, situacao: 'aberto', showPopup: false }) }); };
+    fl.forEach(r => { if (r.status !== 'Expedido') push(r, 'Foto Livro', 'fl'); });
+    sv.forEach(r => { if (r.status !== 'Finalizado') push(r, 'Serviço', 'sv'); });
+    out.sort((a, b) => (b.dias === null ? 1e9 : b.dias) - (a.dias === null ? 1e9 : a.dias));
+    return out;
+  }
+
+  seed() {
+    const d = (typeof window !== 'undefined' && window.__DADOS_SERVICOS) || { fotoLivros: [], servicos: [] };
+    const t = this.today2();
+    return {
+      fl: (d.fotoLivros || []).map((r, i) => ({ id: 'fl' + i, atualizadoEm: t, ...r })),
+      sv: (d.servicos || []).map((r, i) => ({ id: 'sv' + i, atualizadoEm: t, ...r }))
+    };
+  }
+  loadKey(k) { try { const r = localStorage.getItem(this.KEY[k]); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  commit(k, list) { try { localStorage.setItem(this.KEY[k], JSON.stringify(list)); } catch (e) {} this.setState({ [k]: list }); }
+
+  componentDidMount() {
+    let fl = this.loadKey('fl'), sv = this.loadKey('sv');
+    if (!fl || !sv) { const s = this.seed(); fl = fl || s.fl; sv = sv || s.sv; try { localStorage.setItem(this.KEY.fl, JSON.stringify(fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(sv)); } catch (e) {} }
+    const stalled = this.stalled(fl, sv);
+    this.setState({ fl, sv, loaded: true, showPopup: stalled.length > 0, popupSeen: false });
+  }
+
+  reset() {
+    if (!window.confirm('Restaurar todos os dados originais da planilha? Suas alterações neste navegador serão perdidas.')) return;
+    const s = this.seed();
+    try { localStorage.setItem(this.KEY.fl, JSON.stringify(s.fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(s.sv)); } catch (e) {}
+    this.setState({ fl: s.fl, sv: s.sv });
+  }
+
+  setStatus(k, id, status) { const t = this.today2(); this.commit(k, this.state[k].map(r => r.id === id ? { ...r, status, atualizadoEm: t } : r)); }
+  remove(k, id) { if (!window.confirm('Excluir este registro?')) return; this.commit(k, this.state[k].filter(r => r.id !== id)); }
+  openEdit(k, id) {
+    const r = this.state[k].find(x => x.id === id);
+    if (!r) return;
+    if (k === 'fl') {
+      const inList = this.MODELOS.includes(r.modelo);
+      this.setState({ editRow: { k, id, loja: r.loja, os: r.os, cliente: r.cliente, modelo: inList ? r.modelo : 'Outros', modeloOutros: inList ? '' : r.modelo, vendedor: r.vendedor, dataEntrega: r.dataEntrega, status: r.status, obs: r.obs || '' } });
+    } else {
+      const inList = this.SERVICOS.includes(r.descricao);
+      this.setState({ editRow: { k, id, loja: r.loja, os: r.os, cliente: r.cliente, descricao: inList ? r.descricao : 'Outros', descricaoOutros: inList ? '' : r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, dataEntrega: r.dataEntrega, status: r.status, obs: r.obs || '' } });
+    }
+  }
+  setEdit(field) { return (e) => this.setState({ editRow: { ...this.state.editRow, [field]: e.target.value } }); }
+  closeEdit() { this.setState({ editRow: null }); }
+  saveEdit() {
+    const e = this.state.editRow; if (!e) return;
+    const t = this.today2();
+    if (e.k === 'fl') {
+      const modelo = e.modelo === 'Outros' ? (e.modeloOutros || '').trim() : e.modelo;
+      this.commit('fl', this.state.fl.map(r => r.id === e.id ? { ...r, loja: e.loja, os: e.os.trim(), cliente: e.cliente.trim(), modelo, vendedor: e.vendedor.trim(), dataEntrega: e.dataEntrega.trim(), status: e.status, obs: e.obs.trim(), atualizadoEm: t } : r));
+    } else {
+      const descricao = e.descricao === 'Outros' ? (e.descricaoOutros || '').trim() : e.descricao;
+      this.commit('sv', this.state.sv.map(r => r.id === e.id ? { ...r, loja: e.loja, os: e.os.trim(), cliente: e.cliente.trim(), descricao, vendedor: e.vendedor.trim(), laboratorista: e.laboratorista.trim(), dataEntrega: e.dataEntrega.trim(), status: e.status, obs: e.obs.trim(), atualizadoEm: t } : r));
+    }
+    this.setState({ editRow: null });
+  }
+  editObs(k, id) { const cur = this.state[k].find(r => r.id === id); const v = window.prompt('Observação do pedido:', cur ? (cur.obs || '') : ''); if (v === null) return; this.commit(k, this.state[k].map(r => r.id === id ? { ...r, obs: v.trim() } : r)); }
+
+  addFL() {
+    const f = this.state.formFL;
+    if (!f.cliente.trim() && !f.os.trim()) return;
+    const modelo = f.modelo === 'Outros' ? (f.modeloOutros || '').trim() : f.modelo;
+    const rec = { id: this.nid(), loja: f.loja, dataEnvio: '', os: f.os.trim(), cliente: f.cliente.trim(), status: f.status, modelo, vendedor: f.vendedor.trim(), dataEntrega: f.dataEntrega.trim(), statusEntrega: '', obs: f.obs.trim(), atualizadoEm: this.today2() };
+    this.commit('fl', [rec, ...this.state.fl]);
+    this.setState({ formFL: { ...f, os: '', cliente: '', modeloOutros: '', vendedor: '', dataEntrega: '', obs: '' } });
+  }
+  addSV() {
+    const f = this.state.formSV;
+    if (!f.cliente.trim() && !f.os.trim()) return;
+    const desc = f.descricao === 'Outros' ? (f.descricaoOutros || '').trim() : f.descricao;
+    const rec = { id: this.nid(), loja: f.loja, os: f.os.trim(), cliente: f.cliente.trim(), vendedor: f.vendedor.trim(), descricao: desc, status: f.status, laboratorista: f.laboratorista.trim(), dataEntrega: f.dataEntrega.trim(), obs: f.obs.trim(), atualizadoEm: this.today2() };
+    this.commit('sv', [rec, ...this.state.sv]);
+    this.setState({ formSV: { ...f, os: '', cliente: '', descricaoOutros: '', vendedor: '', laboratorista: '', dataEntrega: '', obs: '' } });
+  }
+
+  renderVals() {
+    const S = this.state;
+    const rowPad = (this.props.density === 'compacto') ? '8px' : '12px';
+    const opts = arr => arr.map(o => ({ value: o, label: o }));
+
+    const flEnt = r => r.status === 'Expedido';
+    const svEnt = r => r.status === 'Finalizado';
+    const openFL = S.fl.filter(r => !flEnt(r)).length;
+    const openSV = S.sv.filter(r => !svEnt(r)).length;
+    const totalOpen = openFL + openSV;
+    const flDone = S.fl.filter(flEnt).length, svDone = S.sv.filter(svEnt).length;
+    const cUnit = (list, u) => list.filter(x => x.loja === u).length;
+    const openView = t => () => this.setState({ view: 'app', tab: t, situacao: 'aberto', showAdd: false });
+    const attention = [];
+    S.fl.forEach(r => { if (!flEnt(r)) attention.push({ key: r.id, tipo: 'Foto Livro', os: r.os, cliente: r.cliente, loja: r.loja, status: r.status || 'Conferido', dotColor: 'var(--yellow-600)', onOpen: openView('fl') }); });
+    S.sv.forEach(r => { if (!svEnt(r)) attention.push({ key: r.id, tipo: 'Serviço', os: r.os, cliente: r.cliente, loja: r.loja, status: r.status || 'Em produção', dotColor: 'var(--yellow-600)', onOpen: openView('sv') }); });
+    const attentionTop = attention.slice(0, 12);
+    const stalledArr = this.stalled(S.fl, S.sv);
+
+    const stats = (list, ent, doneLabel) => {
+      const total = list.length, done = list.filter(ent).length;
+      const t = list.filter(r => r.loja === 'TIRADENTES').length, a = list.filter(r => r.loja === 'AMAZONAS').length;
+      return [
+        { label: 'Total', value: total, color: 'var(--blue-600)' },
+        { label: doneLabel, value: done, color: 'var(--state-success)' },
+        { label: 'Em aberto', value: total - done, color: 'var(--yellow-800)' },
+        { label: 'Tiradentes', value: t, color: 'var(--neutral-600)' },
+        { label: 'Amazonas', value: a, color: 'var(--neutral-600)' }
+      ];
+    };
+
+    const filt = (list, ent) => {
+      let a = list;
+      if (S.loja !== 'todas') a = a.filter(x => x.loja === S.loja);
+      if (S.situacao === 'aberto') a = a.filter(x => !ent(x));
+      else if (S.situacao === 'entregue') a = a.filter(ent);
+      else if (S.situacao !== 'todos') a = a.filter(x => (x.status || 'Em produção') === S.situacao);
+      const q = S.busca.toLowerCase().trim();
+      if (q) a = a.filter(x => (x.os || '').toLowerCase().includes(q) || (x.cliente || '').toLowerCase().includes(q));
+      return a;
+    };
+
+    const decFL = r => {
+      const ent = flEnt(r); const sv = r.status || 'Conferido';
+      const o = this.FLBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
+      return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('fl', r.id), modelo: r.modelo, vendedor: r.vendedor, loja: r.loja, entrega: r.dataEntrega,
+        dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Expedido' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
+        onStatusChange: e => this.setStatus('fl', r.id, e.target.value), onRemove: () => this.remove('fl', r.id), onEdit: () => this.openEdit('fl', r.id) };
+    };
+    const decSV = r => {
+      const ent = svEnt(r); const sv = r.status || 'Em produção';
+      const o = this.SVBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
+      return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('sv', r.id), descricao: r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, loja: r.loja,
+        dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Finalizado' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
+        onStatusChange: e => this.setStatus('sv', r.id, e.target.value), onRemove: () => this.remove('sv', r.id), onEdit: () => this.openEdit('sv', r.id) };
+    };
+
+    const flFilt = filt(S.fl, flEnt), svFilt = filt(S.sv, svEnt);
+    const flRows = S.tab === 'fl' ? flFilt.slice(0, this.CAP).map(decFL) : [];
+    const svRows = S.tab === 'sv' ? svFilt.slice(0, this.CAP).map(decSV) : [];
+
+    const setF = k => e => this.setState({ [k]: e.target.value });
+    const setForm = (form, k) => e => this.setState({ [form]: { ...this.state[form], [k]: e.target.value } });
+
+    return {
+      tabs: [{ value: 'fl', label: 'Foto Livros' }, { value: 'sv', label: 'Serviços' }],
+      tab: S.tab, setTab: v => this.setState({ tab: v, showAdd: false, situacao: 'aberto' }),
+      view: S.view, isHome: S.view === 'home', isApp: S.view === 'app',
+      goHome: () => this.setState({ view: 'home' }),
+      openFLview: openView('fl'), openSVview: openView('sv'),
+      totalOpen, openFL, openSV, doneTotal: flDone + svDone, grandTotal: S.fl.length + S.sv.length,
+      homeFL: { total: S.fl.length, done: flDone, open: openFL, t: cUnit(S.fl, 'TIRADENTES'), a: cUnit(S.fl, 'AMAZONAS') },
+      homeSV: { total: S.sv.length, done: svDone, open: openSV, t: cUnit(S.sv, 'TIRADENTES'), a: cUnit(S.sv, 'AMAZONAS') },
+      attention: attentionTop, attentionEmpty: S.loaded && attentionTop.length === 0,
+      stalledList: stalledArr.slice(0, 30), stalledCount: stalledArr.length,
+      stalledThresh: (this.props.diasParaAlerta ?? 3),
+      showPopup: S.showPopup && stalledArr.length > 0,
+      popupTitle: stalledArr.length === 1 ? '1 pedido parado há muito tempo' : stalledArr.length + ' pedidos parados há muito tempo',
+      closePopup: () => this.setState({ showPopup: false, popupSeen: true }),
+      openPopup: () => this.setState({ showPopup: true }),
+      hasStalled: stalledArr.length > 0,
+      editRow: S.editRow, editIsFL: !!(S.editRow && S.editRow.k === 'fl'), editIsSV: !!(S.editRow && S.editRow.k === 'sv'),
+      editOutrosFL: !!(S.editRow && S.editRow.modelo === 'Outros'), editOutrosSV: !!(S.editRow && S.editRow.descricao === 'Outros'),
+      onE_loja: this.setEdit('loja'), onE_os: this.setEdit('os'), onE_cliente: this.setEdit('cliente'),
+      onE_modelo: this.setEdit('modelo'), onE_modeloOutros: this.setEdit('modeloOutros'), onE_vendedor: this.setEdit('vendedor'), onE_entrega: this.setEdit('dataEntrega'),
+      onE_statusFL: this.setEdit('status'), onE_statusSV: this.setEdit('status'), onE_obs: this.setEdit('obs'),
+      onE_descricao: this.setEdit('descricao'), onE_descOutros: this.setEdit('descricaoOutros'), onE_lab: this.setEdit('laboratorista'),
+      closeEdit: () => this.closeEdit(), saveEdit: () => this.saveEdit(),
+      isFL: S.tab === 'fl', isSV: S.tab === 'sv',
+      hasOpen: S.loaded && totalOpen > 0, allClear: S.loaded && totalOpen === 0,
+      openLabel: totalOpen + (totalOpen === 1 ? ' pedido atrasado' : ' pedidos atrasados') + ' (' + openFL + ' foto livros · ' + openSV + ' serviços)',
+      statsList: S.tab === 'fl' ? stats(S.fl, flEnt, 'Expedidos') : stats(S.sv, svEnt, 'Finalizados'),
+      lojaOpts: [{ value: 'todas', label: 'Todas as unidades' }, { value: 'TIRADENTES', label: 'Tiradentes' }, { value: 'AMAZONAS', label: 'Amazonas' }],
+      lojasAdd: [{ value: 'TIRADENTES', label: 'Tiradentes' }, { value: 'AMAZONAS', label: 'Amazonas' }],
+      situacaoOpts: [{ value: 'aberto', label: 'Em aberto' }, { value: 'entregue', label: 'Entregues' }, { value: 'todos', label: 'Todos' }, ...(S.tab === 'fl' ? this.FLBASE : this.SVBASE).map(s => ({ value: s, label: 'Status: ' + s }))],
+      loja: S.loja, situacao: S.situacao, busca: S.busca,
+      onLoja: setF('loja'), onSituacao: setF('situacao'), onBusca: setF('busca'),
+      showAdd: S.showAdd, toggleAdd: () => this.setState({ showAdd: !S.showAdd }),
+      addBtnLabel: S.showAdd ? 'Fechar' : '＋ Novo',
+      addBtnVariant: S.showAdd ? 'outline' : 'secondary',
+      rowPad, trashIcon: '✕', editIcon: '✎', reset: () => this.reset(),
+      flBaseOpts: opts(this.FLBASE), svBaseOpts: opts(this.SVBASE), modeloOpts: opts(this.MODELOS), flOutros: S.formFL.modelo === 'Outros', servicoOpts: opts(this.SERVICOS), svOutros: S.formSV.descricao === 'Outros',
+      formFL: S.formFL, formSV: S.formSV,
+      fFL_loja: setForm('formFL', 'loja'), fFL_os: setForm('formFL', 'os'), fFL_cliente: setForm('formFL', 'cliente'), fFL_modelo: setForm('formFL', 'modelo'), fFL_vendedor: setForm('formFL', 'vendedor'), fFL_entrega: setForm('formFL', 'dataEntrega'), fFL_status: setForm('formFL', 'status'),
+      fFL_obs: setForm('formFL', 'obs'), fSV_obs: setForm('formSV', 'obs'), fSV_descOutros: setForm('formSV', 'descricaoOutros'), fFL_modeloOutros: setForm('formFL', 'modeloOutros'),
+      fSV_loja: setForm('formSV', 'loja'), fSV_os: setForm('formSV', 'os'), fSV_cliente: setForm('formSV', 'cliente'), fSV_descricao: setForm('formSV', 'descricao'), fSV_lab: setForm('formSV', 'laboratorista'), fSV_entrega: setForm('formSV', 'dataEntrega'), fSV_status: setForm('formSV', 'status'),
+      addFL: () => this.addFL(), addSV: () => this.addSV(),
+      flRows, svRows,
+      flEmpty: S.loaded && S.tab === 'fl' && flFilt.length === 0,
+      svEmpty: S.loaded && S.tab === 'sv' && svFilt.length === 0,
+      flCapped: flFilt.length > this.CAP, svCapped: svFilt.length > this.CAP,
+      flCapLabel: 'Mostrando ' + this.CAP + ' de ' + flFilt.length + ' — use a busca ou os filtros para refinar.',
+      svCapLabel: 'Mostrando ' + this.CAP + ' de ' + svFilt.length + ' — use a busca ou os filtros para refinar.'
+    };
+  }
+}
+</script>
+</body>
+</html>
