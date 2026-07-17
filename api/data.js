@@ -28,12 +28,9 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { key, list, password } = req.body || {};
+    const { key, list } = req.body || {};
     if (key !== 'fl' && key !== 'sv') return res.status(400).json({ error: 'invalid key' });
     if (!Array.isArray(list)) return res.status(400).json({ error: 'invalid list' });
-    if (!process.env.EDIT_PASSWORD || password !== process.env.EDIT_PASSWORD) {
-      return res.status(401).json({ error: 'unauthorized' });
-    }
     await sql`INSERT INTO panel_data (key, value) VALUES (${key}, ${JSON.stringify(list)}::jsonb)
       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
     return res.status(200).json({ ok: true });

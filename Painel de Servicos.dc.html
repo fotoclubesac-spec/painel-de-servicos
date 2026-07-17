@@ -395,24 +395,13 @@ class Component extends DCLogic {
     } catch (e) { return null; }
   }
 
-  getPassword() {
-    if (this._pwd) return this._pwd;
-    const p = window.prompt('Senha para editar (compartilhada com a equipe):');
-    if (p === null || p === '') return null;
-    this._pwd = p;
-    return p;
-  }
-
   async pushRemote(key, list) {
-    const password = this.getPassword();
-    if (password === null) return false;
     try {
       const res = await fetch('/api/data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, list, password })
+        body: JSON.stringify({ key, list })
       });
-      if (res.status === 401) { this._pwd = null; window.alert('Senha incorreta. Sua alteração não foi salva para os demais usuários.'); return false; }
       return res.ok;
     } catch (e) { return false; }
   }
