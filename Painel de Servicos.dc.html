@@ -337,7 +337,7 @@
       </sc-if>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:4px">
-        <div style="font-size:12px;color:var(--text-muted)">Dados importados da sua planilha · alterações ficam salvas neste navegador.</div>
+        <div style="font-size:12px;color:var(--text-muted)">{{ dataSourceLabel }}</div>
         <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="ghost" size="sm" on-click="{{ reset }}" hint-size="auto,34px">Restaurar dados da planilha</x-import>
       </div>
       </sc-if>
@@ -386,20 +386,64 @@ class Component extends DCLogic {
     };
   }
   loadKey(k) { try { const r = localStorage.getItem(this.KEY[k]); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
-  commit(k, list) { try { localStorage.setItem(this.KEY[k], JSON.stringify(list)); } catch (e) {} this.setState({ [k]: list }); }
 
-  componentDidMount() {
-    let fl = this.loadKey('fl'), sv = this.loadKey('sv');
-    if (!fl || !sv) { const s = this.seed(); fl = fl || s.fl; sv = sv || s.sv; try { localStorage.setItem(this.KEY.fl, JSON.stringify(fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(sv)); } catch (e) {} }
+  async fetchRemote() {
+    try {
+      const res = await fetch('/api/data');
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) { return null; }
+  }
+
+  getPassword() {
+    if (this._pwd) return this._pwd;
+    const p = window.prompt('Senha para editar (compartilhada com a equipe):');
+    if (p === null || p === '') return null;
+    this._pwd = p;
+    return p;
+  }
+
+  async pushRemote(key, list) {
+    const password = this.getPassword();
+    if (password === null) return false;
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, list, password })
+      });
+      if (res.status === 401) { this._pwd = null; window.alert('Senha incorreta. Sua alteração não foi salva para os demais usuários.'); return false; }
+      return res.ok;
+    } catch (e) { return false; }
+  }
+
+  commit(k, list) {
+    this.setState({ [k]: list });
+    try { localStorage.setItem(this.KEY[k], JSON.stringify(list)); } catch (e) {}
+    if (this._remote) this.pushRemote(k, list);
+  }
+
+  async componentDidMount() {
+    const remote = await this.fetchRemote();
+    let fl, sv;
+    if (remote) {
+      this._remote = true;
+      fl = remote.fl || []; sv = remote.sv || [];
+    } else {
+      this._remote = false;
+      fl = this.loadKey('fl'); sv = this.loadKey('sv');
+      if (!fl || !sv) { const s = this.seed(); fl = fl || s.fl; sv = sv || s.sv; try { localStorage.setItem(this.KEY.fl, JSON.stringify(fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(sv)); } catch (e) {} }
+    }
     const stalled = this.stalled(fl, sv);
     this.setState({ fl, sv, loaded: true, showPopup: stalled.length > 0, popupSeen: false });
   }
 
   reset() {
-    if (!window.confirm('Restaurar todos os dados originais da planilha? Suas alterações neste navegador serão perdidas.')) return;
+    if (!window.confirm('Restaurar todos os dados originais da planilha? As alterações serão perdidas.')) return;
     const s = this.seed();
     try { localStorage.setItem(this.KEY.fl, JSON.stringify(s.fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(s.sv)); } catch (e) {}
     this.setState({ fl: s.fl, sv: s.sv });
+    if (this._remote) { this.pushRemote('fl', s.fl); this.pushRemote('sv', s.sv); }
   }
 
   setStatus(k, id, status) { const t = this.today2(); this.commit(k, this.state[k].map(r => r.id === id ? { ...r, status, atualizadoEm: t } : r)); }
@@ -548,6 +592,7 @@ class Component extends DCLogic {
       showAdd: S.showAdd, toggleAdd: () => this.setState({ showAdd: !S.showAdd }),
       addBtnLabel: S.showAdd ? 'Fechar' : '＋ Novo',
       addBtnVariant: S.showAdd ? 'outline' : 'secondary',
+      dataSourceLabel: this._remote ? 'Dados compartilhados com a equipe · sincronizados em tempo real.' : 'Dados importados da sua planilha · alterações ficam salvas neste navegador.',
       rowPad, trashIcon: '✕', editIcon: '✎', reset: () => this.reset(),
       flBaseOpts: opts(this.FLBASE), svBaseOpts: opts(this.SVBASE), modeloOpts: opts(this.MODELOS), flOutros: S.formFL.modelo === 'Outros', servicoOpts: opts(this.SERVICOS), svOutros: S.formSV.descricao === 'Outros',
       formFL: S.formFL, formSV: S.formSV,
