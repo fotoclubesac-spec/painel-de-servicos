@@ -327,18 +327,19 @@
           </sc-if>
 
           <div style="background:var(--surface-card);border:1px solid var(--border-default)">
-            <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 172px 46px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
+            <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 72px 172px 46px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">OS</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Cliente</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Serviço</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Vendedor(a)</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Laboratorista</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Unidade</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Entrega</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Status</div>
               <div></div>
             </div>
             <sc-for list="{{ svRows }}" as="r" hint-placeholder-count="10">
-              <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
+              <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 72px 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
                 <div style="font-family:var(--font-body);font-size:13px;color:var(--text-secondary);font-weight:600">{{ r.os }}</div>
                 <div>
                   <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
@@ -352,6 +353,7 @@
                 <div style="font-size:13px;color:var(--text-muted)">{{ r.vendedor }}</div>
                 <div style="font-size:13px;color:var(--text-muted)">{{ r.laboratorista }}</div>
                 <div style="font-size:12px;color:var(--text-muted)">{{ r.loja }}</div>
+                <div style="font-size:13px;color:var(--text-secondary)">{{ r.entrega }}</div>
                 <div style="display:flex;align-items:center;gap:8px" title="{{ r.dotLabel }}">
                   <span style="width:12px;height:12px;flex:none;background:{{ r.dotColor }}"></span>
                   <div style="flex:1;min-width:0"><x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" options="{{ r.statusOptions }}" value="{{ r.statusValue }}" on-change="{{ r.onStatusChange }}" hint-size="100%,44px"></x-import></div>
@@ -607,7 +609,7 @@ class Component extends DCLogic {
     const decSV = r => {
       const ent = svEnt(r); const sv = r.status || 'Em produção';
       const o = this.SVBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
-      return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('sv', r.id), descricao: r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, loja: r.loja,
+      return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('sv', r.id), descricao: r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, loja: r.loja, entrega: r.dataEntrega,
         criadoEm: this.fmtDate(r.criadoEm), hasCriadoEm: !!r.criadoEm,
         dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Finalizado' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
         onStatusChange: e => this.setStatus('sv', r.id, e.target.value), onRemove: () => this.remove('sv', r.id), onEdit: () => this.openEdit('sv', r.id) };
