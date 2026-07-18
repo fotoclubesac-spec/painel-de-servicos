@@ -278,6 +278,7 @@
                   <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
                   <sc-if value="{{ r.hasObs }}" hint-placeholder-val="{{ false }}"><div onClick="{{ r.onEditObs }}" title="{{ r.obs }}" style="cursor:pointer;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">obs: {{ r.obs }}</div></sc-if>
                   <sc-if value="{{ r.noObs }}" hint-placeholder-val="{{ true }}"><div onClick="{{ r.onEditObs }}" style="cursor:pointer;font-size:11px;color:var(--brand-primary);font-weight:600">+ observação</div></sc-if>
+                  <sc-if value="{{ r.hasCriadoEm }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:var(--text-muted)">cadastrado em {{ r.criadoEm }}</div></sc-if>
                 </div>
                 <div style="font-size:13px;color:var(--text-secondary)">{{ r.modelo }}</div>
                 <div style="font-size:13px;color:var(--text-muted)">{{ r.vendedor }}</div>
@@ -339,7 +340,10 @@
             <sc-for list="{{ svRows }}" as="r" hint-placeholder-count="10">
               <div style="display:grid;grid-template-columns:92px 1.3fr 1.7fr 0.9fr 0.95fr 0.8fr 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
                 <div style="font-family:var(--font-body);font-size:13px;color:var(--text-secondary);font-weight:600">{{ r.os }}</div>
-                <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
+                <div>
+                  <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
+                  <sc-if value="{{ r.hasCriadoEm }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:var(--text-muted)">cadastrado em {{ r.criadoEm }}</div></sc-if>
+                </div>
                 <div style="min-width:0">
                   <div style="font-size:13px;color:var(--text-secondary)">{{ r.descricao }}</div>
                   <sc-if value="{{ r.hasObs }}" hint-placeholder-val="{{ false }}"><div onClick="{{ r.onEditObs }}" title="{{ r.obs }}" style="cursor:pointer;font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">obs: {{ r.obs }}</div></sc-if>
@@ -414,6 +418,7 @@ class Component extends DCLogic {
 
   nid() { return 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
   today2() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  fmtDate(iso) { if (!iso) return ''; const p = iso.split('-'); return p.length === 3 ? (p[2] + '/' + p[1] + '/' + p[0]) : iso; }
   pdate(s) { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
   busDays(fromStr, to) { let d = this.pdate(fromStr); d = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const end = new Date(to.getFullYear(), to.getMonth(), to.getDate()); let n = 0; while (d < end) { d.setDate(d.getDate() + 1); const w = d.getDay(); if (w !== 0 && w !== 6) n++; } return n; }
   stalled(fl, sv) {
@@ -526,7 +531,7 @@ class Component extends DCLogic {
     const f = this.state.formFL;
     if (!f.cliente.trim() && !f.os.trim()) return;
     const modelo = f.modelo === 'Outros' ? (f.modeloOutros || '').trim() : f.modelo;
-    const rec = { id: this.nid(), loja: f.loja, dataEnvio: '', os: f.os.trim(), cliente: f.cliente.trim(), status: f.status, modelo, vendedor: f.vendedor.trim(), dataEntrega: f.dataEntrega.trim(), statusEntrega: '', obs: f.obs.trim(), atualizadoEm: this.today2(),
+    const rec = { id: this.nid(), loja: f.loja, dataEnvio: '', os: f.os.trim(), cliente: f.cliente.trim(), status: f.status, modelo, vendedor: f.vendedor.trim(), dataEntrega: f.dataEntrega.trim(), statusEntrega: '', obs: f.obs.trim(), atualizadoEm: this.today2(), criadoEm: this.today2(),
       tituloCapa: f.tituloCapa.trim(), nPaginas: f.nPaginas.trim(), revestimentoCapa: f.revestimentoCapa.trim(), revestimentoContraCapa: f.revestimentoContraCapa.trim(), embalagem: f.embalagem.trim(), revestimentoEmbalagem: f.revestimentoEmbalagem.trim(), dataAprovacao: f.dataAprovacao.trim(), wetransferLink: f.wetransferLink.trim() };
     this.commit('fl', [rec, ...this.state.fl]);
     this.setState({ formFL: { ...f, os: '', cliente: '', modeloOutros: '', vendedor: '', dataEntrega: '', obs: '', tituloCapa: '', nPaginas: '', revestimentoCapa: '', revestimentoContraCapa: '', embalagem: '', revestimentoEmbalagem: '', dataAprovacao: '', wetransferLink: '' } });
@@ -535,7 +540,7 @@ class Component extends DCLogic {
     const f = this.state.formSV;
     if (!f.cliente.trim() && !f.os.trim()) return;
     const desc = f.descricao === 'Outros' ? (f.descricaoOutros || '').trim() : f.descricao;
-    const rec = { id: this.nid(), loja: f.loja, os: f.os.trim(), cliente: f.cliente.trim(), vendedor: f.vendedor.trim(), descricao: desc, status: f.status, laboratorista: f.laboratorista.trim(), dataEntrega: f.dataEntrega.trim(), obs: f.obs.trim(), atualizadoEm: this.today2() };
+    const rec = { id: this.nid(), loja: f.loja, os: f.os.trim(), cliente: f.cliente.trim(), vendedor: f.vendedor.trim(), descricao: desc, status: f.status, laboratorista: f.laboratorista.trim(), dataEntrega: f.dataEntrega.trim(), obs: f.obs.trim(), atualizadoEm: this.today2(), criadoEm: this.today2() };
     this.commit('sv', [rec, ...this.state.sv]);
     this.setState({ formSV: { ...f, os: '', cliente: '', descricaoOutros: '', vendedor: '', laboratorista: '', dataEntrega: '', obs: '' } });
   }
@@ -594,6 +599,7 @@ class Component extends DCLogic {
       const ent = flEnt(r); const sv = r.status || 'Conferido';
       const o = this.FLBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
       return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('fl', r.id), modelo: r.modelo, vendedor: r.vendedor, loja: r.loja, entrega: r.dataEntrega,
+        criadoEm: this.fmtDate(r.criadoEm), hasCriadoEm: !!r.criadoEm,
         dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Expedido' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
         hasWetransfer: !!(r.wetransferLink && r.wetransferLink.trim()), onOpenWetransfer: () => window.open(r.wetransferLink, '_blank'), onPrint: () => this.printGuia(r.id),
         onStatusChange: e => this.setStatus('fl', r.id, e.target.value), onRemove: () => this.remove('fl', r.id), onEdit: () => this.openEdit('fl', r.id) };
@@ -602,6 +608,7 @@ class Component extends DCLogic {
       const ent = svEnt(r); const sv = r.status || 'Em produção';
       const o = this.SVBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
       return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('sv', r.id), descricao: r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, loja: r.loja,
+        criadoEm: this.fmtDate(r.criadoEm), hasCriadoEm: !!r.criadoEm,
         dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Finalizado' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
         onStatusChange: e => this.setStatus('sv', r.id, e.target.value), onRemove: () => this.remove('sv', r.id), onEdit: () => this.openEdit('sv', r.id) };
     };
