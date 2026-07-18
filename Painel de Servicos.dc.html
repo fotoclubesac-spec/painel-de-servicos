@@ -21,6 +21,11 @@
     a{color:var(--brand-primary);text-decoration:none}
     a:hover{color:var(--brand-primary-hover);text-decoration:underline}
     *{box-sizing:border-box}
+    .print-guia{display:none}
+    @media print{
+      .app-shell{display:none}
+      .print-guia{display:block}
+    }
     :root{
       --blue-900:#5c0029;--blue-800:#8a003d;--blue-700:#b30050;--blue-600:#e6006e;--blue-500:#f0247f;--blue-400:#f562a1;--blue-300:#f89dc4;--blue-200:#fccde0;--blue-100:#fdeaf2;
       --brand-primary:#e6006e;--brand-primary-hover:#b30050;--brand-primary-active:#8a003d;--brand-primary-tint:#fdeaf2;
@@ -29,7 +34,7 @@
     }
   </style>
 </helmet>
-<div style="min-height:100vh;font-family:var(--font-body);color:var(--text-primary)">
+<div class="app-shell" style="min-height:100vh;font-family:var(--font-body);color:var(--text-primary)">
   <div style="background:#FFFEFE">
 
   <div style="max-width: 1280px; margin: 0 auto; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background-color: #FFFEFE; position: relative">
@@ -99,6 +104,14 @@
             <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Vendedor(a)" value="{{ editRow.vendedor }}" on-change="{{ onE_vendedor }}" hint-size="150px,66px"></x-import>
             <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ editRow.dataEntrega }}" on-change="{{ onE_entrega }}" hint-size="110px,66px"></x-import>
             <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ flBaseOpts }}" value="{{ editRow.status }}" on-change="{{ onE_statusFL }}" hint-size="180px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Título da Capa" value="{{ editRow.tituloCapa }}" on-change="{{ onE_tituloCapa }}" hint-size="200px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Nº de páginas" value="{{ editRow.nPaginas }}" on-change="{{ onE_nPaginas }}" hint-size="110px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento Capa" value="{{ editRow.revestimentoCapa }}" on-change="{{ onE_revCapa }}" hint-size="170px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento contra capa" value="{{ editRow.revestimentoContraCapa }}" on-change="{{ onE_revContraCapa }}" hint-size="170px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Embalagem" value="{{ editRow.embalagem }}" on-change="{{ onE_embalagem }}" hint-size="150px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento Embalagem" value="{{ editRow.revestimentoEmbalagem }}" on-change="{{ onE_revEmbalagem }}" hint-size="170px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Data aprovação" placeholder="dd/mm" value="{{ editRow.dataAprovacao }}" on-change="{{ onE_dataAprovacao }}" hint-size="130px,66px"></x-import>
+            <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Link WeTransfer" placeholder="https://we.tl/..." value="{{ editRow.wetransferLink }}" on-change="{{ onE_wetransfer }}" hint-size="260px,66px"></x-import>
           </sc-if>
 
           <sc-if value="{{ editIsSV }}" hint-placeholder-val="{{ false }}">
@@ -231,13 +244,24 @@
                 <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Entrega" placeholder="dd/mm" value="{{ formFL.dataEntrega }}" on-change="{{ fFL_entrega }}" hint-size="110px,66px"></x-import>
                 <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" label="Status" options="{{ flBaseOpts }}" value="{{ formFL.status }}" on-change="{{ fFL_status }}" hint-size="180px,66px"></x-import>
                 <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Observação" placeholder="Opcional" value="{{ formFL.obs }}" on-change="{{ fFL_obs }}" hint-size="240px,66px"></x-import>
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:16px 0 10px">Detalhes de produção</div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end">
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Título da Capa" value="{{ formFL.tituloCapa }}" on-change="{{ fFL_tituloCapa }}" hint-size="200px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Nº de páginas" value="{{ formFL.nPaginas }}" on-change="{{ fFL_nPaginas }}" hint-size="110px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento Capa" value="{{ formFL.revestimentoCapa }}" on-change="{{ fFL_revCapa }}" hint-size="170px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento contra capa" value="{{ formFL.revestimentoContraCapa }}" on-change="{{ fFL_revContraCapa }}" hint-size="170px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Embalagem" value="{{ formFL.embalagem }}" on-change="{{ fFL_embalagem }}" hint-size="150px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Revestimento Embalagem" value="{{ formFL.revestimentoEmbalagem }}" on-change="{{ fFL_revEmbalagem }}" hint-size="170px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Data aprovação" placeholder="dd/mm" value="{{ formFL.dataAprovacao }}" on-change="{{ fFL_dataAprovacao }}" hint-size="130px,66px"></x-import>
+                <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Input" label="Link WeTransfer" placeholder="https://we.tl/..." value="{{ formFL.wetransferLink }}" on-change="{{ fFL_wetransfer }}" hint-size="260px,66px"></x-import>
                 <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ addFL }}" hint-size="auto,44px">Adicionar</x-import>
               </div>
             </div>
           </sc-if>
 
           <div style="background:var(--surface-card);border:1px solid var(--border-default)">
-            <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 46px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
+            <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 150px;gap:12px;padding:12px 18px;border-bottom:2px solid var(--border-default);background:var(--surface-sunken)">
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">OS</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Cliente</div>
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted)">Modelo</div>
@@ -248,7 +272,7 @@
               <div></div>
             </div>
             <sc-for list="{{ flRows }}" as="r" hint-placeholder-count="10">
-              <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 46px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
+              <div style="display:grid;grid-template-columns:92px 1.4fr 1.1fr 0.9fr 0.85fr 72px 172px 150px;gap:12px;align-items:center;padding:{{ rowPad }} 18px;border-bottom:1px solid var(--neutral-100)">
                 <div style="font-family:var(--font-body);font-size:13px;color:var(--text-secondary);font-weight:600">{{ r.os }}</div>
                 <div style="min-width:0">
                   <div style="font-size:14px;font-weight:500;color:var(--text-primary)">{{ r.cliente }}</div>
@@ -264,6 +288,10 @@
                   <div style="flex:1;min-width:0"><x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Select" options="{{ r.statusOptions }}" value="{{ r.statusValue }}" on-change="{{ r.onStatusChange }}" hint-size="100%,44px"></x-import></div>
                 </div>
                 <div style="display:flex;gap:4px">
+                  <sc-if value="{{ r.hasWetransfer }}" hint-placeholder-val="{{ false }}">
+                    <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Abrir fotos (WeTransfer)" icon="📎" on-click="{{ r.onOpenWetransfer }}" hint-size="32px,32px"></x-import>
+                  </sc-if>
+                  <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Imprimir guia" icon="🖨" on-click="{{ r.onPrint }}" hint-size="32px,32px"></x-import>
                   <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Editar" icon="{{ editIcon }}" on-click="{{ r.onEdit }}" hint-size="32px,32px"></x-import>
                   <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.IconButton" variant="ghost" size="sm" aria-label="Excluir" icon="{{ trashIcon }}" on-click="{{ r.onRemove }}" hint-size="32px,32px"></x-import>
                 </div>
@@ -343,6 +371,27 @@
     </div>
   </div>
 </div>
+
+<sc-if value="{{ printRow }}" hint-placeholder-val="{{ false }}">
+  <div class="print-guia" style="padding:24px;font-family:sans-serif;color:#000">
+    <h2 style="margin:0 0 16px">Pedido de Álbum Personalizado</h2>
+    <table style="border-collapse:collapse;width:100%">
+      <tr><td style="padding:6px 10px;font-weight:700">Título da Capa</td><td style="padding:6px 10px">{{ printRow.tituloCapa }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Cliente</td><td style="padding:6px 10px">{{ printRow.cliente }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">O.S.</td><td style="padding:6px 10px">{{ printRow.os }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Vendedor(a)</td><td style="padding:6px 10px">{{ printRow.vendedor }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Unidade</td><td style="padding:6px 10px">{{ printRow.loja }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Modelo do álbum</td><td style="padding:6px 10px">{{ printRow.modelo }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Nº de páginas</td><td style="padding:6px 10px">{{ printRow.nPaginas }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Revestimento Capa</td><td style="padding:6px 10px">{{ printRow.revestimentoCapa }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Revestimento contra capa</td><td style="padding:6px 10px">{{ printRow.revestimentoContraCapa }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Embalagem</td><td style="padding:6px 10px">{{ printRow.embalagem }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Revestimento Embalagem</td><td style="padding:6px 10px">{{ printRow.revestimentoEmbalagem }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Data aprovação</td><td style="padding:6px 10px">{{ printRow.dataAprovacao }}</td></tr>
+      <tr><td style="padding:6px 10px;font-weight:700">Data de entrega</td><td style="padding:6px 10px">{{ printRow.dataEntrega }}</td></tr>
+    </table>
+  </div>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;confortavel&quot;,&quot;compacto&quot;],&quot;default&quot;:&quot;compacto&quot;,&quot;tsType&quot;:&quot;'confortavel'|'compacto'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fl&quot;,&quot;sv&quot;],&quot;default&quot;:&quot;fl&quot;,&quot;tsType&quot;:&quot;'fl'|'sv'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;diasParaAlerta&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:1,&quot;max&quot;:30,&quot;unit&quot;:&quot;dias úteis&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Automação&quot;}}">
 class Component extends DCLogic {
@@ -359,7 +408,7 @@ class Component extends DCLogic {
     fl: [], sv: [], loaded: false,
     loja: 'todas', situacao: 'aberto', busca: '',
     showAdd: false, showPopup: false, popupSeen: false,
-    formFL: { loja: 'TIRADENTES', os: '', cliente: '', modelo: 'Álbum MAX 20x30', modeloOutros: '', vendedor: '', dataEntrega: '', status: 'Conferido', obs: '' },
+    formFL: { loja: 'TIRADENTES', os: '', cliente: '', modelo: 'Álbum MAX 20x30', modeloOutros: '', vendedor: '', dataEntrega: '', status: 'Conferido', obs: '', tituloCapa: '', nPaginas: '', revestimentoCapa: '', revestimentoContraCapa: '', embalagem: '', revestimentoEmbalagem: '', dataAprovacao: '', wetransferLink: '' },
     formSV: { loja: 'TIRADENTES', os: '', cliente: '', descricao: 'Revelação 30x40', descricaoOutros: '', vendedor: '', laboratorista: '', dataEntrega: '', status: 'Em produção', obs: '' }
   };
 
@@ -442,7 +491,8 @@ class Component extends DCLogic {
     if (!r) return;
     if (k === 'fl') {
       const inList = this.MODELOS.includes(r.modelo);
-      this.setState({ editRow: { k, id, loja: r.loja, os: r.os, cliente: r.cliente, modelo: inList ? r.modelo : 'Outros', modeloOutros: inList ? '' : r.modelo, vendedor: r.vendedor, dataEntrega: r.dataEntrega, status: r.status, obs: r.obs || '' } });
+      this.setState({ editRow: { k, id, loja: r.loja, os: r.os, cliente: r.cliente, modelo: inList ? r.modelo : 'Outros', modeloOutros: inList ? '' : r.modelo, vendedor: r.vendedor, dataEntrega: r.dataEntrega, status: r.status, obs: r.obs || '',
+        tituloCapa: r.tituloCapa || '', nPaginas: r.nPaginas || '', revestimentoCapa: r.revestimentoCapa || '', revestimentoContraCapa: r.revestimentoContraCapa || '', embalagem: r.embalagem || '', revestimentoEmbalagem: r.revestimentoEmbalagem || '', dataAprovacao: r.dataAprovacao || '', wetransferLink: r.wetransferLink || '' } });
     } else {
       const inList = this.SERVICOS.includes(r.descricao);
       this.setState({ editRow: { k, id, loja: r.loja, os: r.os, cliente: r.cliente, descricao: inList ? r.descricao : 'Outros', descricaoOutros: inList ? '' : r.descricao, vendedor: r.vendedor, laboratorista: r.laboratorista, dataEntrega: r.dataEntrega, status: r.status, obs: r.obs || '' } });
@@ -455,7 +505,8 @@ class Component extends DCLogic {
     const t = this.today2();
     if (e.k === 'fl') {
       const modelo = e.modelo === 'Outros' ? (e.modeloOutros || '').trim() : e.modelo;
-      this.commit('fl', this.state.fl.map(r => r.id === e.id ? { ...r, loja: e.loja, os: e.os.trim(), cliente: e.cliente.trim(), modelo, vendedor: e.vendedor.trim(), dataEntrega: e.dataEntrega.trim(), status: e.status, obs: e.obs.trim(), atualizadoEm: t } : r));
+      this.commit('fl', this.state.fl.map(r => r.id === e.id ? { ...r, loja: e.loja, os: e.os.trim(), cliente: e.cliente.trim(), modelo, vendedor: e.vendedor.trim(), dataEntrega: e.dataEntrega.trim(), status: e.status, obs: e.obs.trim(), atualizadoEm: t,
+        tituloCapa: e.tituloCapa.trim(), nPaginas: e.nPaginas.trim(), revestimentoCapa: e.revestimentoCapa.trim(), revestimentoContraCapa: e.revestimentoContraCapa.trim(), embalagem: e.embalagem.trim(), revestimentoEmbalagem: e.revestimentoEmbalagem.trim(), dataAprovacao: e.dataAprovacao.trim(), wetransferLink: e.wetransferLink.trim() } : r));
     } else {
       const descricao = e.descricao === 'Outros' ? (e.descricaoOutros || '').trim() : e.descricao;
       this.commit('sv', this.state.sv.map(r => r.id === e.id ? { ...r, loja: e.loja, os: e.os.trim(), cliente: e.cliente.trim(), descricao, vendedor: e.vendedor.trim(), laboratorista: e.laboratorista.trim(), dataEntrega: e.dataEntrega.trim(), status: e.status, obs: e.obs.trim(), atualizadoEm: t } : r));
@@ -464,13 +515,21 @@ class Component extends DCLogic {
   }
   editObs(k, id) { const cur = this.state[k].find(r => r.id === id); const v = window.prompt('Observação do pedido:', cur ? (cur.obs || '') : ''); if (v === null) return; this.commit(k, this.state[k].map(r => r.id === id ? { ...r, obs: v.trim() } : r)); }
 
+  printGuia(id) {
+    const r = this.state.fl.find(x => x.id === id);
+    if (!r) return;
+    this.setState({ printRow: r });
+    setTimeout(() => window.print(), 50);
+  }
+
   addFL() {
     const f = this.state.formFL;
     if (!f.cliente.trim() && !f.os.trim()) return;
     const modelo = f.modelo === 'Outros' ? (f.modeloOutros || '').trim() : f.modelo;
-    const rec = { id: this.nid(), loja: f.loja, dataEnvio: '', os: f.os.trim(), cliente: f.cliente.trim(), status: f.status, modelo, vendedor: f.vendedor.trim(), dataEntrega: f.dataEntrega.trim(), statusEntrega: '', obs: f.obs.trim(), atualizadoEm: this.today2() };
+    const rec = { id: this.nid(), loja: f.loja, dataEnvio: '', os: f.os.trim(), cliente: f.cliente.trim(), status: f.status, modelo, vendedor: f.vendedor.trim(), dataEntrega: f.dataEntrega.trim(), statusEntrega: '', obs: f.obs.trim(), atualizadoEm: this.today2(),
+      tituloCapa: f.tituloCapa.trim(), nPaginas: f.nPaginas.trim(), revestimentoCapa: f.revestimentoCapa.trim(), revestimentoContraCapa: f.revestimentoContraCapa.trim(), embalagem: f.embalagem.trim(), revestimentoEmbalagem: f.revestimentoEmbalagem.trim(), dataAprovacao: f.dataAprovacao.trim(), wetransferLink: f.wetransferLink.trim() };
     this.commit('fl', [rec, ...this.state.fl]);
-    this.setState({ formFL: { ...f, os: '', cliente: '', modeloOutros: '', vendedor: '', dataEntrega: '', obs: '' } });
+    this.setState({ formFL: { ...f, os: '', cliente: '', modeloOutros: '', vendedor: '', dataEntrega: '', obs: '', tituloCapa: '', nPaginas: '', revestimentoCapa: '', revestimentoContraCapa: '', embalagem: '', revestimentoEmbalagem: '', dataAprovacao: '', wetransferLink: '' } });
   }
   addSV() {
     const f = this.state.formSV;
@@ -536,6 +595,7 @@ class Component extends DCLogic {
       const o = this.FLBASE.slice(); if (!o.includes(sv)) o.unshift(sv);
       return { id: r.id, os: r.os, cliente: r.cliente, obs: r.obs, hasObs: !!(r.obs && r.obs.trim()), noObs: !(r.obs && r.obs.trim()), onEditObs: () => this.editObs('fl', r.id), modelo: r.modelo, vendedor: r.vendedor, loja: r.loja, entrega: r.dataEntrega,
         dotColor: ent ? 'var(--state-success)' : 'var(--yellow-600)', dotLabel: ent ? 'Expedido' : 'Em aberto', statusValue: sv, statusOptions: opts(o),
+        hasWetransfer: !!(r.wetransferLink && r.wetransferLink.trim()), onOpenWetransfer: () => window.open(r.wetransferLink, '_blank'), onPrint: () => this.printGuia(r.id),
         onStatusChange: e => this.setStatus('fl', r.id, e.target.value), onRemove: () => this.remove('fl', r.id), onEdit: () => this.openEdit('fl', r.id) };
     };
     const decSV = r => {
@@ -575,6 +635,8 @@ class Component extends DCLogic {
       onE_loja: this.setEdit('loja'), onE_os: this.setEdit('os'), onE_cliente: this.setEdit('cliente'),
       onE_modelo: this.setEdit('modelo'), onE_modeloOutros: this.setEdit('modeloOutros'), onE_vendedor: this.setEdit('vendedor'), onE_entrega: this.setEdit('dataEntrega'),
       onE_statusFL: this.setEdit('status'), onE_statusSV: this.setEdit('status'), onE_obs: this.setEdit('obs'),
+      onE_tituloCapa: this.setEdit('tituloCapa'), onE_nPaginas: this.setEdit('nPaginas'), onE_revCapa: this.setEdit('revestimentoCapa'), onE_revContraCapa: this.setEdit('revestimentoContraCapa'),
+      onE_embalagem: this.setEdit('embalagem'), onE_revEmbalagem: this.setEdit('revestimentoEmbalagem'), onE_dataAprovacao: this.setEdit('dataAprovacao'), onE_wetransfer: this.setEdit('wetransferLink'),
       onE_descricao: this.setEdit('descricao'), onE_descOutros: this.setEdit('descricaoOutros'), onE_lab: this.setEdit('laboratorista'),
       closeEdit: () => this.closeEdit(), saveEdit: () => this.saveEdit(),
       isFL: S.tab === 'fl', isSV: S.tab === 'sv',
@@ -595,6 +657,9 @@ class Component extends DCLogic {
       formFL: S.formFL, formSV: S.formSV,
       fFL_loja: setForm('formFL', 'loja'), fFL_os: setForm('formFL', 'os'), fFL_cliente: setForm('formFL', 'cliente'), fFL_modelo: setForm('formFL', 'modelo'), fFL_vendedor: setForm('formFL', 'vendedor'), fFL_entrega: setForm('formFL', 'dataEntrega'), fFL_status: setForm('formFL', 'status'),
       fFL_obs: setForm('formFL', 'obs'), fSV_obs: setForm('formSV', 'obs'), fSV_descOutros: setForm('formSV', 'descricaoOutros'), fFL_modeloOutros: setForm('formFL', 'modeloOutros'),
+      fFL_tituloCapa: setForm('formFL', 'tituloCapa'), fFL_nPaginas: setForm('formFL', 'nPaginas'), fFL_revCapa: setForm('formFL', 'revestimentoCapa'), fFL_revContraCapa: setForm('formFL', 'revestimentoContraCapa'),
+      fFL_embalagem: setForm('formFL', 'embalagem'), fFL_revEmbalagem: setForm('formFL', 'revestimentoEmbalagem'), fFL_dataAprovacao: setForm('formFL', 'dataAprovacao'), fFL_wetransfer: setForm('formFL', 'wetransferLink'),
+      printRow: S.printRow,
       fSV_loja: setForm('formSV', 'loja'), fSV_os: setForm('formSV', 'os'), fSV_cliente: setForm('formSV', 'cliente'), fSV_descricao: setForm('formSV', 'descricao'), fSV_lab: setForm('formSV', 'laboratorista'), fSV_entrega: setForm('formSV', 'dataEntrega'), fSV_status: setForm('formSV', 'status'),
       addFL: () => this.addFL(), addSV: () => this.addSV(),
       flRows, svRows,
