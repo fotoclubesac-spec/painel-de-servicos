@@ -417,7 +417,8 @@ class Component extends DCLogic {
     let fl, sv;
     if (remote) {
       this._remote = true;
-      fl = remote.fl || []; sv = remote.sv || [];
+      fl = (remote.fl || []).map((r, i) => r.id ? r : { ...r, id: 'fl' + i });
+      sv = (remote.sv || []).map((r, i) => r.id ? r : { ...r, id: 'sv' + i });
     } else {
       this._remote = false;
       fl = this.loadKey('fl'); sv = this.loadKey('sv');

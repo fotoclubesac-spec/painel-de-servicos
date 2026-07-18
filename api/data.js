@@ -12,7 +12,11 @@ async function ensureTable() {
 function seedData() {
   const raw = fs.readFileSync(path.join(process.cwd(), 'dados-servicos.json'), 'utf-8');
   const d = JSON.parse(raw);
-  return { fl: d.fotoLivros || [], sv: d.servicos || [] };
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    fl: (d.fotoLivros || []).map((r, i) => ({ id: 'fl' + i, atualizadoEm: today, ...r })),
+    sv: (d.servicos || []).map((r, i) => ({ id: 'sv' + i, atualizadoEm: today, ...r }))
+  };
 }
 
 module.exports = async function handler(req, res) {
