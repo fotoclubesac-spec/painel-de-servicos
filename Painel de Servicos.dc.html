@@ -467,13 +467,19 @@ class Component extends DCLogic {
     if (this._remote) this.pushRemote(k, list);
   }
 
+  normalizeRemote(remote) {
+    const fl = (remote.fl || []).map((r, i) => r.id ? r : { ...r, id: 'fl' + i });
+    const sv = (remote.sv || []).map((r, i) => r.id ? r : { ...r, id: 'sv' + i });
+    return { fl, sv };
+  }
+
   async componentDidMount() {
     const remote = await this.fetchRemote();
     let fl, sv;
     if (remote) {
       this._remote = true;
-      fl = (remote.fl || []).map((r, i) => r.id ? r : { ...r, id: 'fl' + i });
-      sv = (remote.sv || []).map((r, i) => r.id ? r : { ...r, id: 'sv' + i });
+      ({ fl, sv } = this.normalizeRemote(remote));
+      this._pollTimer = setInterval(() => this.pollRemote(), 10000);
     } else {
       this._remote = false;
       fl = this.loadKey('fl'); sv = this.loadKey('sv');
@@ -481,6 +487,18 @@ class Component extends DCLogic {
     }
     const stalled = this.stalled(fl, sv);
     this.setState({ fl, sv, loaded: true, showPopup: stalled.length > 0, popupSeen: false });
+  }
+
+  async pollRemote() {
+    if (this.state.editRow) return;
+    const remote = await this.fetchRemote();
+    if (!remote) return;
+    const { fl, sv } = this.normalizeRemote(remote);
+    this.setState({ fl, sv });
+  }
+
+  componentWillUnmount() {
+    if (this._pollTimer) clearInterval(this._pollTimer);
   }
 
   reset() {
