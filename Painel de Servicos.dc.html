@@ -450,6 +450,14 @@ class Component extends DCLogic {
     } catch (e) { return null; }
   }
 
+  async fetchMeta() {
+    try {
+      const res = await fetch('/api/data?meta=1');
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (e) { return null; }
+  }
+
   async pushRemote(key, list) {
     try {
       const res = await fetch('/api/data', {
@@ -479,7 +487,9 @@ class Component extends DCLogic {
     if (remote) {
       this._remote = true;
       ({ fl, sv } = this.normalizeRemote(remote));
-      this._pollTimer = setInterval(() => this.pollRemote(), 10000);
+      this._metaFl = remote.fl_updated_at || null;
+      this._metaSv = remote.sv_updated_at || null;
+      this._pollTimer = setInterval(() => this.pollRemote(), 15000);
     } else {
       this._remote = false;
       fl = this.loadKey('fl'); sv = this.loadKey('sv');
@@ -491,8 +501,14 @@ class Component extends DCLogic {
 
   async pollRemote() {
     if (this.state.editRow) return;
+    const meta = await this.fetchMeta();
+    if (!meta) return;
+    const changed = meta.fl !== this._metaFl || meta.sv !== this._metaSv;
+    if (!changed) return;
     const remote = await this.fetchRemote();
     if (!remote) return;
+    this._metaFl = remote.fl_updated_at || meta.fl || null;
+    this._metaSv = remote.sv_updated_at || meta.sv || null;
     const { fl, sv } = this.normalizeRemote(remote);
     this.setState({ fl, sv });
   }

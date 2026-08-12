@@ -7,6 +7,7 @@ const sql = neon(connectionString);
 
 async function ensureTable() {
   await sql`CREATE TABLE IF NOT EXISTS panel_data (key TEXT PRIMARY KEY, value JSONB NOT NULL)`;
+  await sql`ALTER TABLE panel_data ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now()`;
 }
 
 function seedData() {
@@ -24,23 +25,30 @@ module.exports = async function handler(req, res) {
   await ensureTable();
 
   if (req.method === 'GET') {
-    const flRows = await sql`SELECT value FROM panel_data WHERE key = 'fl'`;
-    const svRows = await sql`SELECT value FROM panel_data WHERE key = 'sv'`;
+    if (req.query && req.query.meta) {
+      const rows = await sql`SELECT key, updated_at FROM panel_data`;
+      const out = {};
+      rows.forEach(r => { out[r.key] = r.updated_at; });
+      return res.status(200).json(out);
+    }
+
+    const flRows = await sql`SELECT value, updated_at FROM panel_data WHERE key = 'fl'`;
+    const svRows = await sql`SELECT value, updated_at FROM panel_data WHERE key = 'sv'`;
     if (flRows.length === 0 || svRows.length === 0) {
       const seed = seedData();
       await sql`INSERT INTO panel_data (key, value) VALUES ('fl', ${JSON.stringify(seed.fl)}::jsonb) ON CONFLICT (key) DO NOTHING`;
       await sql`INSERT INTO panel_data (key, value) VALUES ('sv', ${JSON.stringify(seed.sv)}::jsonb) ON CONFLICT (key) DO NOTHING`;
       return res.status(200).json(seed);
     }
-    return res.status(200).json({ fl: flRows[0].value, sv: svRows[0].value });
+    return res.status(200).json({ fl: flRows[0].value, sv: svRows[0].value, fl_updated_at: flRows[0].updated_at, sv_updated_at: svRows[0].updated_at });
   }
 
   if (req.method === 'POST') {
     const { key, list } = req.body || {};
     if (key !== 'fl' && key !== 'sv') return res.status(400).json({ error: 'invalid key' });
     if (!Array.isArray(list)) return res.status(400).json({ error: 'invalid list' });
-    await sql`INSERT INTO panel_data (key, value) VALUES (${key}, ${JSON.stringify(list)}::jsonb)
-      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`;
+    await sql`INSERT INTO panel_data (key, value, updated_at) VALUES (${key}, ${JSON.stringify(list)}::jsonb, now())
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
     return res.status(200).json({ ok: true });
   }
 
