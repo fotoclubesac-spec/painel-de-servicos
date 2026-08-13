@@ -137,6 +137,15 @@
   <div style="max-width:1280px;margin:0 auto;padding:0 24px">
     <div style="display:flex;flex-direction:column;gap:18px;padding:22px 0 48px">
 
+<sc-if value="{{ loadError }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:520px;margin:60px auto;background:var(--surface-card);border:1px solid var(--border-default);padding:28px;text-align:center">
+    <div style="font-size:32px;margin-bottom:10px">⚠️</div>
+    <div style="font-family:var(--font-heading);font-size:18px;font-weight:700;margin-bottom:8px">Não foi possível carregar os dados</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:18px">Não conseguimos conectar ao banco de dados compartilhado. Verifique sua internet e tente de novo — os dados de todos continuam salvos com segurança.</div>
+    <x-import component-from-global-scope="FotoClubeDesignSystem_7803bc.Button" variant="primary" on-click="{{ retry }}" hint-size="auto,44px">Tentar novamente</x-import>
+  </div>
+</sc-if>
+
 <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:22px;padding:6px 0 48px">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
@@ -401,7 +410,6 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;confortavel&quot;,&quot;compacto&quot;],&quot;default&quot;:&quot;compacto&quot;,&quot;tsType&quot;:&quot;'confortavel'|'compacto'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fl&quot;,&quot;sv&quot;],&quot;default&quot;:&quot;fl&quot;,&quot;tsType&quot;:&quot;'fl'|'sv'&quot;,&quot;section&quot;:&quot;Exibição&quot;},&quot;diasParaAlerta&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;min&quot;:1,&quot;max&quot;:30,&quot;unit&quot;:&quot;dias úteis&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Automação&quot;}}">
 class Component extends DCLogic {
-  KEY = { fl: 'fc_fl_v2', sv: 'fc_sv_v2' };
   FLBASE = ['Conferido', 'Impresso', 'Enviado para impressão', 'Encadernação', 'Correção de álbum', 'Expedido'];
   SVBASE = ['Em produção', 'Enviado para Lab Amazonas', 'Enviado Lab Tiradentes', 'Recebido Lab Amazonas', 'Recebido Lab Tiradentes', 'ENVIADO / LAB PEDRO', 'Correção', 'Finalizado'];
   CAP = 90;
@@ -440,8 +448,6 @@ class Component extends DCLogic {
       sv: (d.servicos || []).map((r, i) => ({ id: 'sv' + i, atualizadoEm: t, ...r }))
     };
   }
-  loadKey(k) { try { const r = localStorage.getItem(this.KEY[k]); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
-
   async fetchRemote() {
     try {
       const res = await fetch('/api/data');
@@ -471,8 +477,7 @@ class Component extends DCLogic {
 
   commit(k, list) {
     this.setState({ [k]: list });
-    try { localStorage.setItem(this.KEY[k], JSON.stringify(list)); } catch (e) {}
-    if (this._remote) this.pushRemote(k, list);
+    this.pushRemote(k, list);
   }
 
   normalizeRemote(remote) {
@@ -483,20 +488,22 @@ class Component extends DCLogic {
 
   async componentDidMount() {
     const remote = await this.fetchRemote();
-    let fl, sv;
-    if (remote) {
-      this._remote = true;
-      ({ fl, sv } = this.normalizeRemote(remote));
-      this._metaFl = remote.fl_updated_at || null;
-      this._metaSv = remote.sv_updated_at || null;
-      this._pollTimer = setInterval(() => this.pollRemote(), 15000);
-    } else {
-      this._remote = false;
-      fl = this.loadKey('fl'); sv = this.loadKey('sv');
-      if (!fl || !sv) { const s = this.seed(); fl = fl || s.fl; sv = sv || s.sv; try { localStorage.setItem(this.KEY.fl, JSON.stringify(fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(sv)); } catch (e) {} }
+    if (!remote) {
+      this.setState({ loaded: true, loadError: true });
+      return;
     }
+    this._remote = true;
+    const { fl, sv } = this.normalizeRemote(remote);
+    this._metaFl = remote.fl_updated_at || null;
+    this._metaSv = remote.sv_updated_at || null;
+    this._pollTimer = setInterval(() => this.pollRemote(), 15000);
     const stalled = this.stalled(fl, sv);
-    this.setState({ fl, sv, loaded: true, showPopup: stalled.length > 0, popupSeen: false });
+    this.setState({ fl, sv, loaded: true, loadError: false, showPopup: stalled.length > 0, popupSeen: false });
+  }
+
+  retry() {
+    this.setState({ loadError: false, loaded: false });
+    this.componentDidMount();
   }
 
   async pollRemote() {
@@ -520,9 +527,8 @@ class Component extends DCLogic {
   reset() {
     if (!window.confirm('Restaurar todos os dados originais da planilha? As alterações serão perdidas.')) return;
     const s = this.seed();
-    try { localStorage.setItem(this.KEY.fl, JSON.stringify(s.fl)); localStorage.setItem(this.KEY.sv, JSON.stringify(s.sv)); } catch (e) {}
     this.setState({ fl: s.fl, sv: s.sv });
-    if (this._remote) { this.pushRemote('fl', s.fl); this.pushRemote('sv', s.sv); }
+    this.pushRemote('fl', s.fl); this.pushRemote('sv', s.sv);
   }
 
   setStatus(k, id, status) { const t = this.today2(); this.commit(k, this.state[k].map(r => r.id === id ? { ...r, status, atualizadoEm: t } : r)); }
@@ -659,7 +665,7 @@ class Component extends DCLogic {
     return {
       tabs: [{ value: 'fl', label: 'Foto Livros' }, { value: 'sv', label: 'Serviços' }],
       tab: S.tab, setTab: v => this.setState({ tab: v, showAdd: false, situacao: 'aberto' }),
-      view: S.view, isHome: S.view === 'home', isApp: S.view === 'app',
+      view: S.view, isHome: S.view === 'home' && !S.loadError, isApp: S.view === 'app' && !S.loadError,
       goHome: () => this.setState({ view: 'home' }),
       openFLview: openView('fl'), openSVview: openView('sv'),
       totalOpen, openFL, openSV, doneTotal: flDone + svDone, grandTotal: S.fl.length + S.sv.length,
@@ -683,7 +689,7 @@ class Component extends DCLogic {
       onE_descricao: this.setEdit('descricao'), onE_descOutros: this.setEdit('descricaoOutros'), onE_lab: this.setEdit('laboratorista'),
       closeEdit: () => this.closeEdit(), saveEdit: () => this.saveEdit(),
       isFL: S.tab === 'fl', isSV: S.tab === 'sv',
-      hasOpen: S.loaded && totalOpen > 0, allClear: S.loaded && totalOpen === 0,
+      hasOpen: S.loaded && !S.loadError && totalOpen > 0, allClear: S.loaded && !S.loadError && totalOpen === 0,
       openLabel: totalOpen + (totalOpen === 1 ? ' pedido atrasado' : ' pedidos atrasados') + ' (' + openFL + ' foto livros · ' + openSV + ' serviços)',
       statsList: S.tab === 'fl' ? stats(S.fl, flEnt, 'Expedidos') : stats(S.sv, svEnt, 'Finalizados'),
       lojaOpts: [{ value: 'todas', label: 'Todas as unidades' }, { value: 'TIRADENTES', label: 'Tiradentes' }, { value: 'AMAZONAS', label: 'Amazonas' }],
@@ -694,7 +700,9 @@ class Component extends DCLogic {
       showAdd: S.showAdd, toggleAdd: () => this.setState({ showAdd: !S.showAdd }),
       addBtnLabel: S.showAdd ? 'Fechar' : '＋ Novo',
       addBtnVariant: S.showAdd ? 'outline' : 'secondary',
-      dataSourceLabel: this._remote ? 'Dados compartilhados com a equipe · sincronizados em tempo real.' : 'Dados importados da sua planilha · alterações ficam salvas neste navegador.',
+      dataSourceLabel: 'Dados compartilhados com a equipe · sincronizados em tempo real.',
+      loadError: S.loadError,
+      retry: () => this.retry(),
       rowPad, trashIcon: '✕', editIcon: '✎', reset: () => this.reset(),
       flBaseOpts: opts(this.FLBASE), svBaseOpts: opts(this.SVBASE), modeloOpts: opts(this.MODELOS), flOutros: S.formFL.modelo === 'Outros', servicoOpts: opts(this.SERVICOS), svOutros: S.formSV.descricao === 'Outros',
       formFL: S.formFL, formSV: S.formSV,
